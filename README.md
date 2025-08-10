@@ -1,6 +1,19 @@
-# Welcome to your Expo app 👋
+# Business Card Scanner App �
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is a React Native app built with [Expo](https://expo.dev) that allows you to scan, store, and organize business cards.
+
+## Features ✨
+
+- 📷 **Dual-side Scanning**: Capture both front and back of business cards
+- 🤖 **Real OCR with Validation**: Automatic text extraction with quality verification
+- ⚠️ **Smart Retry System**: Prompts to retake photos if text extraction fails
+- 🖼️ **Gallery Import**: Import existing business card images
+- ✍️ **Manual Entry Fallback**: Add text manually when OCR isn't available
+- 🔍 **Smart Search**: Search through your cards by name, company, email, phone
+- 🏷️ **Advanced Filtering**: Filter by contact type, recent cards, organized data
+- 📊 **Organized Display**: View cards with structured sections (Personal, Organization, Contact)
+- 💾 **Local Storage**: All data stored securely on your device
+- ✅ **Text Preview**: See extracted text before saving
 
 ## Get started
 
@@ -23,7 +36,60 @@ In the output, you'll find options to open the app in a
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## How to Use 📖
+
+1. **Scan a Card**: Tap "📷 Scan Card" to take photos of front/back sides
+2. **Import from Gallery**: Tap "📁 Import from Gallery" to use existing photos
+3. **Add Text**: When prompted, enter the text details manually or skip for image-only storage
+4. **Search & Filter**: Use the search bar and filter buttons to find specific cards
+5. **View Details**: Tap action buttons to see raw text or contact information
+
+## Text Recognition 🔤
+
+The app features **OCR (Optical Character Recognition)** with intelligent fallbacks:
+
+### Current Status:
+
+- **Development Build**: Full OCR functionality with MLKit
+- **Expo Go**: Graceful fallback to manual text entry (OCR libraries require native compilation)
+
+### How it works:
+
+1. **Automatic Detection**: App detects if OCR is available in current environment
+2. **Smart Fallback**: If OCR isn't available, provides clear messaging and manual entry option
+3. **Manual Entry**: High-quality manual text input with smart parsing
+4. **Image Storage**: Always saves images for reference, regardless of text extraction
+
+### For Best Results:
+
+- 📸 Use good lighting and clear images
+- 📐 Keep business cards straight and flat
+- � For full OCR: Use `expo run:android` or `expo run:ios` (development build)
+- 📱 For Expo Go: Manual text entry works perfectly
+
+### Features Available in All Environments:
+
+- ✅ Image capture and storage
+- ✅ Manual text entry with smart parsing
+- ✅ Advanced search and filtering
+- ✅ Organized contact display
+- ✅ All core functionality
+
+## Data Organization 📋
+
+Entered text is automatically parsed and organized into:
+
+- **Personal**: Name, Title
+- **Organization**: Company, Department
+- **Contact**: Emails, Phone numbers, Websites, Addresses
+
+## Future Enhancements 🚀
+
+- Real-time OCR integration
+- Export to contacts/CSV
+- Card categories and tags
+- Duplicate detection
+- Cloud backup
 
 ## Get a fresh project
 
