@@ -1,16 +1,22 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useRouter } from "expo-router";
 
 import { IconSymbol, ThemedText, ThemedView } from "@/src/shared/components";
 
 export default function HomeScreen() {
+  const router = useRouter();
+
   const handleScanDocument = () => {
-    // Navigate to camera screen when implemented
-    console.log("Navigate to camera scanner");
+    router.push("/camera");
   };
 
   const handleViewDocuments = () => {
     // Navigate to documents screen when implemented
     console.log("Navigate to documents");
+  };
+
+  const handleGalleryPick = () => {
+    router.push("/camera");
   };
 
   return (
@@ -43,7 +49,10 @@ export default function HomeScreen() {
             <Text style={styles.secondaryButtonText}>My Documents</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.secondaryButton}>
+          <TouchableOpacity 
+            style={styles.secondaryButton}
+            onPress={handleGalleryPick}
+          >
             <IconSymbol size={32} color="#007AFF" name="photo" />
             <Text style={styles.secondaryButtonText}>From Gallery</Text>
           </TouchableOpacity>
