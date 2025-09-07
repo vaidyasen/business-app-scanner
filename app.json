@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "appScanner",
-    "slug": "appScanner",
+    "name": "HotelFinder",
+    "slug": "hotelFinder",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "appscanner",
+    "scheme": "hotelfinder",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -17,7 +17,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.appScanner"
+      "package": "com.hotelfinder.app"
     },
     "web": {
       "bundler": "metro",
