@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import MlkitOcr from "react-native-mlkit-ocr";
+import { HotelSearchScreen } from "./src/features/hotels";
 
 export default function App() {
   const [loading, setLoading] = useState(false);
@@ -21,6 +22,7 @@ export default function App() {
   const [cards, setCards] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all"); // all, recent, hasEmail, hasPhone
+  const [currentScreen, setCurrentScreen] = useState("scanner"); // scanner, hotels
 
   React.useEffect(() => {
     loadCards();
@@ -875,426 +877,482 @@ export default function App() {
     <View style={styles.container}>
       <StatusBar style="auto" />
 
-      <View style={styles.header}>
-        <Text style={styles.title}>Business Card Scanner</Text>
-        <Text style={styles.subtitle}>
-          Scan and organize your business cards
-        </Text>
-      </View>
-
-      <View style={styles.buttonContainer}>
+      {/* Tab Navigation */}
+      <View style={styles.tabContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.scanButton]}
-          onPress={scanCard}
-          disabled={loading}
+          style={[styles.tab, currentScreen === "scanner" && styles.activeTab]}
+          onPress={() => setCurrentScreen("scanner")}
         >
-          <Text style={styles.buttonText}>
-            {loading ? "Processing..." : "📷 Scan Card"}
+          <Text
+            style={[
+              styles.tabText,
+              currentScreen === "scanner" && styles.activeTabText,
+            ]}
+          >
+            📷 Business Cards
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.button, styles.importButton]}
-          onPress={importFromGallery}
-          disabled={loading}
+          style={[styles.tab, currentScreen === "hotels" && styles.activeTab]}
+          onPress={() => setCurrentScreen("hotels")}
         >
-          <Text style={styles.buttonText}>📁 Import from Gallery</Text>
+          <Text
+            style={[
+              styles.tabText,
+              currentScreen === "hotels" && styles.activeTabText,
+            ]}
+          >
+            🏨 Hotel Search
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {cards.length > 0 && (
-        <View style={styles.cardsContainer}>
-          {/* Search and Filter Section */}
-          <View style={styles.searchFilterContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="🔍 Search cards..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              clearButtonMode="while-editing"
-            />
-
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.filterContainer}
-            >
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  filterType === "all" && styles.activeFilter,
-                ]}
-                onPress={() => setFilterType("all")}
-              >
-                <Text
-                  style={[
-                    styles.filterText,
-                    filterType === "all" && styles.activeFilterText,
-                  ]}
-                >
-                  📋 All ({cards.length})
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  filterType === "recent" && styles.activeFilter,
-                ]}
-                onPress={() => setFilterType("recent")}
-              >
-                <Text
-                  style={[
-                    styles.filterText,
-                    filterType === "recent" && styles.activeFilterText,
-                  ]}
-                >
-                  🕒 Recent
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  filterType === "organized" && styles.activeFilter,
-                ]}
-                onPress={() => setFilterType("organized")}
-              >
-                <Text
-                  style={[
-                    styles.filterText,
-                    filterType === "organized" && styles.activeFilterText,
-                  ]}
-                >
-                  ✨ Organized
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  filterType === "hasEmail" && styles.activeFilter,
-                ]}
-                onPress={() => setFilterType("hasEmail")}
-              >
-                <Text
-                  style={[
-                    styles.filterText,
-                    filterType === "hasEmail" && styles.activeFilterText,
-                  ]}
-                >
-                  📧 Email ({cards.filter((c) => c.emails?.length > 0).length})
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  filterType === "hasPhone" && styles.activeFilter,
-                ]}
-                onPress={() => setFilterType("hasPhone")}
-              >
-                <Text
-                  style={[
-                    styles.filterText,
-                    filterType === "hasPhone" && styles.activeFilterText,
-                  ]}
-                >
-                  📱 Phone ({cards.filter((c) => c.phones?.length > 0).length})
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  filterType === "hasWebsite" && styles.activeFilter,
-                ]}
-                onPress={() => setFilterType("hasWebsite")}
-              >
-                <Text
-                  style={[
-                    styles.filterText,
-                    filterType === "hasWebsite" && styles.activeFilterText,
-                  ]}
-                >
-                  🌐 Website ({cards.filter((c) => c.urls?.length > 0).length})
-                </Text>
-              </TouchableOpacity>
-
-              {(searchQuery || filterType !== "all") && (
-                <TouchableOpacity
-                  style={styles.clearButton}
-                  onPress={clearFilters}
-                >
-                  <Text style={styles.clearButtonText}>✖️ Clear</Text>
-                </TouchableOpacity>
-              )}
-            </ScrollView>
-          </View>
-
-          <View style={styles.cardsHeader}>
-            <Text style={styles.cardsTitle}>
-              Cards ({getFilteredCards().length}
-              {getFilteredCards().length !== cards.length
-                ? ` of ${cards.length}`
-                : ""}
-              )
+      {currentScreen === "scanner" ? (
+        <>
+          <View style={styles.header}>
+            <Text style={styles.title}>Business Card Scanner</Text>
+            <Text style={styles.subtitle}>
+              Scan and organize your business cards
             </Text>
-            {cards.length > 0 && (
-              <TouchableOpacity
-                style={styles.clearAllButton}
-                onPress={() => confirmDeleteAllCards()}
-              >
-                <Text style={styles.clearAllButtonText}>🗑️ Clear All</Text>
-              </TouchableOpacity>
-            )}
           </View>
-          <ScrollView style={styles.cardsList}>
-            {getFilteredCards().map((card) => (
-              <View key={card.id} style={styles.cardItem}>
-                <View style={styles.cardImages}>
-                  <View style={styles.imageContainer}>
-                    <Text style={styles.imageLabel}>Front</Text>
-                    <Image
-                      source={{ uri: card.frontImage || card.image }}
-                      style={styles.cardImage}
-                    />
-                  </View>
-                  {card.backImage && (
-                    <View style={styles.imageContainer}>
-                      <Text style={styles.imageLabel}>Back</Text>
-                      <Image
-                        source={{ uri: card.backImage }}
-                        style={styles.cardImage}
-                      />
-                    </View>
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.button, styles.scanButton]}
+              onPress={scanCard}
+              disabled={loading}
+            >
+              <Text style={styles.buttonText}>
+                {loading ? "Processing..." : "📷 Scan Card"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.button, styles.importButton]}
+              onPress={importFromGallery}
+              disabled={loading}
+            >
+              <Text style={styles.buttonText}>📁 Import from Gallery</Text>
+            </TouchableOpacity>
+          </View>
+
+          {cards.length > 0 && (
+            <View style={styles.cardsContainer}>
+              {/* Search and Filter Section */}
+              <View style={styles.searchFilterContainer}>
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="🔍 Search cards..."
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  clearButtonMode="while-editing"
+                />
+
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.filterContainer}
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.filterButton,
+                      filterType === "all" && styles.activeFilter,
+                    ]}
+                    onPress={() => setFilterType("all")}
+                  >
+                    <Text
+                      style={[
+                        styles.filterText,
+                        filterType === "all" && styles.activeFilterText,
+                      ]}
+                    >
+                      📋 All ({cards.length})
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.filterButton,
+                      filterType === "recent" && styles.activeFilter,
+                    ]}
+                    onPress={() => setFilterType("recent")}
+                  >
+                    <Text
+                      style={[
+                        styles.filterText,
+                        filterType === "recent" && styles.activeFilterText,
+                      ]}
+                    >
+                      🕒 Recent
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.filterButton,
+                      filterType === "organized" && styles.activeFilter,
+                    ]}
+                    onPress={() => setFilterType("organized")}
+                  >
+                    <Text
+                      style={[
+                        styles.filterText,
+                        filterType === "organized" && styles.activeFilterText,
+                      ]}
+                    >
+                      ✨ Organized
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.filterButton,
+                      filterType === "hasEmail" && styles.activeFilter,
+                    ]}
+                    onPress={() => setFilterType("hasEmail")}
+                  >
+                    <Text
+                      style={[
+                        styles.filterText,
+                        filterType === "hasEmail" && styles.activeFilterText,
+                      ]}
+                    >
+                      📧 Email (
+                      {cards.filter((c) => c.emails?.length > 0).length})
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.filterButton,
+                      filterType === "hasPhone" && styles.activeFilter,
+                    ]}
+                    onPress={() => setFilterType("hasPhone")}
+                  >
+                    <Text
+                      style={[
+                        styles.filterText,
+                        filterType === "hasPhone" && styles.activeFilterText,
+                      ]}
+                    >
+                      📱 Phone (
+                      {cards.filter((c) => c.phones?.length > 0).length})
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.filterButton,
+                      filterType === "hasWebsite" && styles.activeFilter,
+                    ]}
+                    onPress={() => setFilterType("hasWebsite")}
+                  >
+                    <Text
+                      style={[
+                        styles.filterText,
+                        filterType === "hasWebsite" && styles.activeFilterText,
+                      ]}
+                    >
+                      🌐 Website (
+                      {cards.filter((c) => c.urls?.length > 0).length})
+                    </Text>
+                  </TouchableOpacity>
+
+                  {(searchQuery || filterType !== "all") && (
+                    <TouchableOpacity
+                      style={styles.clearButton}
+                      onPress={clearFilters}
+                    >
+                      <Text style={styles.clearButtonText}>✖️ Clear</Text>
+                    </TouchableOpacity>
                   )}
-                </View>
-                <View style={styles.cardInfo}>
-                  {/* Display organized data if available */}
-                  {card.organized &&
-                  (card.organized.personal?.name ||
-                    card.organized.organization?.company) ? (
-                    <View style={styles.organizedInfo}>
-                      {/* Personal Information Section */}
-                      {(card.organized.personal?.name ||
-                        card.organized.personal?.title) && (
-                        <View style={styles.infoSection}>
-                          <Text style={styles.sectionHeader}>👤 Personal</Text>
-                          {card.organized.personal.name && (
-                            <Text style={styles.nameText}>
-                              {card.organized.personal.name}
-                            </Text>
-                          )}
-                          {card.organized.personal.title && (
-                            <Text style={styles.titleText}>
-                              {card.organized.personal.title}
-                            </Text>
-                          )}
+                </ScrollView>
+              </View>
+
+              <View style={styles.cardsHeader}>
+                <Text style={styles.cardsTitle}>
+                  Cards ({getFilteredCards().length}
+                  {getFilteredCards().length !== cards.length
+                    ? ` of ${cards.length}`
+                    : ""}
+                  )
+                </Text>
+                {cards.length > 0 && (
+                  <TouchableOpacity
+                    style={styles.clearAllButton}
+                    onPress={() => confirmDeleteAllCards()}
+                  >
+                    <Text style={styles.clearAllButtonText}>🗑️ Clear All</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <ScrollView style={styles.cardsList}>
+                {getFilteredCards().map((card) => (
+                  <View key={card.id} style={styles.cardItem}>
+                    <View style={styles.cardImages}>
+                      <View style={styles.imageContainer}>
+                        <Text style={styles.imageLabel}>Front</Text>
+                        <Image
+                          source={{ uri: card.frontImage || card.image }}
+                          style={styles.cardImage}
+                        />
+                      </View>
+                      {card.backImage && (
+                        <View style={styles.imageContainer}>
+                          <Text style={styles.imageLabel}>Back</Text>
+                          <Image
+                            source={{ uri: card.backImage }}
+                            style={styles.cardImage}
+                          />
                         </View>
                       )}
-
-                      {/* Organization Section */}
-                      {(card.organized.organization?.company ||
-                        card.organized.organization?.department) && (
-                        <View style={styles.infoSection}>
-                          <Text style={styles.sectionHeader}>
-                            🏢 Organization
-                          </Text>
-                          {card.organized.organization.company && (
-                            <Text style={styles.companyText}>
-                              {card.organized.organization.company}
-                            </Text>
-                          )}
-                          {card.organized.organization.department && (
-                            <Text style={styles.departmentText}>
-                              {card.organized.organization.department}
-                            </Text>
-                          )}
-                        </View>
-                      )}
-
-                      {/* Contact Information Section */}
-                      {card.organized.contact &&
-                        (card.organized.contact.emails.length > 0 ||
-                          card.organized.contact.phones.length > 0 ||
-                          card.organized.contact.urls.length > 0 ||
-                          card.organized.contact.addresses.length > 0) && (
-                          <View style={styles.infoSection}>
-                            <Text style={styles.sectionHeader}>📞 Contact</Text>
-                            {card.organized.contact.emails.map(
-                              (email, index) => (
-                                <Text
-                                  key={`email-${index}`}
-                                  style={styles.contactText}
-                                >
-                                  📧 {email}
-                                </Text>
-                              )
-                            )}
-                            {card.organized.contact.phones.map(
-                              (phone, index) => (
-                                <Text
-                                  key={`phone-${index}`}
-                                  style={styles.contactText}
-                                >
-                                  📱 {phone}
-                                </Text>
-                              )
-                            )}
-                            {card.organized.contact.urls.map((url, index) => (
-                              <Text
-                                key={`url-${index}`}
-                                style={styles.contactText}
-                              >
-                                🌐 {url}
+                    </View>
+                    <View style={styles.cardInfo}>
+                      {/* Display organized data if available */}
+                      {card.organized &&
+                      (card.organized.personal?.name ||
+                        card.organized.organization?.company) ? (
+                        <View style={styles.organizedInfo}>
+                          {/* Personal Information Section */}
+                          {(card.organized.personal?.name ||
+                            card.organized.personal?.title) && (
+                            <View style={styles.infoSection}>
+                              <Text style={styles.sectionHeader}>
+                                👤 Personal
                               </Text>
-                            ))}
-                            {card.organized.contact.addresses.map(
-                              (address, index) => (
-                                <Text
-                                  key={`address-${index}`}
-                                  style={styles.contactText}
-                                >
-                                  📍 {address}
+                              {card.organized.personal.name && (
+                                <Text style={styles.nameText}>
+                                  {card.organized.personal.name}
                                 </Text>
-                              )
+                              )}
+                              {card.organized.personal.title && (
+                                <Text style={styles.titleText}>
+                                  {card.organized.personal.title}
+                                </Text>
+                              )}
+                            </View>
+                          )}
+
+                          {/* Organization Section */}
+                          {(card.organized.organization?.company ||
+                            card.organized.organization?.department) && (
+                            <View style={styles.infoSection}>
+                              <Text style={styles.sectionHeader}>
+                                🏢 Organization
+                              </Text>
+                              {card.organized.organization.company && (
+                                <Text style={styles.companyText}>
+                                  {card.organized.organization.company}
+                                </Text>
+                              )}
+                              {card.organized.organization.department && (
+                                <Text style={styles.departmentText}>
+                                  {card.organized.organization.department}
+                                </Text>
+                              )}
+                            </View>
+                          )}
+
+                          {/* Contact Information Section */}
+                          {card.organized.contact &&
+                            (card.organized.contact.emails.length > 0 ||
+                              card.organized.contact.phones.length > 0 ||
+                              card.organized.contact.urls.length > 0 ||
+                              card.organized.contact.addresses.length > 0) && (
+                              <View style={styles.infoSection}>
+                                <Text style={styles.sectionHeader}>
+                                  📞 Contact
+                                </Text>
+                                {card.organized.contact.emails.map(
+                                  (email, index) => (
+                                    <Text
+                                      key={`email-${index}`}
+                                      style={styles.contactText}
+                                    >
+                                      📧 {email}
+                                    </Text>
+                                  )
+                                )}
+                                {card.organized.contact.phones.map(
+                                  (phone, index) => (
+                                    <Text
+                                      key={`phone-${index}`}
+                                      style={styles.contactText}
+                                    >
+                                      📱 {phone}
+                                    </Text>
+                                  )
+                                )}
+                                {card.organized.contact.urls.map(
+                                  (url, index) => (
+                                    <Text
+                                      key={`url-${index}`}
+                                      style={styles.contactText}
+                                    >
+                                      🌐 {url}
+                                    </Text>
+                                  )
+                                )}
+                                {card.organized.contact.addresses.map(
+                                  (address, index) => (
+                                    <Text
+                                      key={`address-${index}`}
+                                      style={styles.contactText}
+                                    >
+                                      📍 {address}
+                                    </Text>
+                                  )
+                                )}
+                              </View>
                             )}
-                          </View>
+
+                          {/* Metadata */}
+                          {card.organized.metadata && (
+                            <View style={styles.metadataSection}>
+                              <Text style={styles.metadataText}>
+                                📊 {card.organized.metadata.extractedFields}{" "}
+                                fields •{" "}
+                                {card.organized.metadata.contactMethods}{" "}
+                                contacts
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      ) : card.extractedData &&
+                        Object.keys(card.extractedData).length > 0 ? (
+                        <View style={styles.extractedInfo}>
+                          {card.extractedData.name && (
+                            <Text style={styles.nameText}>
+                              👤 {card.extractedData.name}
+                            </Text>
+                          )}
+                          {card.extractedData.title && (
+                            <Text style={styles.titleText}>
+                              💼 {card.extractedData.title}
+                            </Text>
+                          )}
+                          {card.extractedData.company && (
+                            <Text style={styles.companyText}>
+                              🏢 {card.extractedData.company}
+                            </Text>
+                          )}
+                          {card.emails && card.emails.length > 0 && (
+                            <Text style={styles.contactText}>
+                              📧 {card.emails[0]}
+                            </Text>
+                          )}
+                          {card.phones && card.phones.length > 0 && (
+                            <Text style={styles.contactText}>
+                              📞 {card.phones[0]}
+                            </Text>
+                          )}
+                          {card.urls && card.urls.length > 0 && (
+                            <Text style={styles.contactText}>
+                              🌐 {card.urls[0]}
+                            </Text>
+                          )}
+                        </View>
+                      ) : (
+                        <Text style={styles.cardText} numberOfLines={4}>
+                          {card.text}
+                        </Text>
+                      )}
+
+                      {/* Action Buttons */}
+                      <View style={styles.actionButtons}>
+                        {card.text && (
+                          <TouchableOpacity
+                            style={styles.actionButton}
+                            onPress={() =>
+                              Alert.alert("Raw Text", card.text, [
+                                { text: "Close", style: "cancel" },
+                              ])
+                            }
+                          >
+                            <Text style={styles.actionButtonText}>
+                              📄 Raw Text
+                            </Text>
+                          </TouchableOpacity>
                         )}
 
-                      {/* Metadata */}
-                      {card.organized.metadata && (
-                        <View style={styles.metadataSection}>
-                          <Text style={styles.metadataText}>
-                            📊 {card.organized.metadata.extractedFields} fields
-                            • {card.organized.metadata.contactMethods} contacts
+                        {(card.emails?.length > 0 ||
+                          card.phones?.length > 0) && (
+                          <TouchableOpacity
+                            style={styles.actionButton}
+                            onPress={() => {
+                              const contactInfo = [
+                                ...(card.emails || []).map(
+                                  (email) => `📧 ${email}`
+                                ),
+                                ...(card.phones || []).map(
+                                  (phone) => `📱 ${phone}`
+                                ),
+                                ...(card.urls || []).map((url) => `🌐 ${url}`),
+                                ...(card.addresses || []).map(
+                                  (address) => `📍 ${address}`
+                                ),
+                              ].join("\n");
+                              Alert.alert("All Contact Info", contactInfo, [
+                                { text: "Close", style: "cancel" },
+                              ]);
+                            }}
+                          >
+                            <Text style={styles.actionButtonText}>
+                              📋 All Contacts
+                            </Text>
+                          </TouchableOpacity>
+                        )}
+
+                        {/* Delete Button */}
+                        <TouchableOpacity
+                          style={[styles.actionButton, styles.deleteButton]}
+                          onPress={() => confirmDeleteCard(card)}
+                        >
+                          <Text
+                            style={[
+                              styles.actionButtonText,
+                              styles.deleteButtonText,
+                            ]}
+                          >
+                            🗑️ Delete
                           </Text>
-                        </View>
-                      )}
-                    </View>
-                  ) : card.extractedData &&
-                    Object.keys(card.extractedData).length > 0 ? (
-                    <View style={styles.extractedInfo}>
-                      {card.extractedData.name && (
-                        <Text style={styles.nameText}>
-                          👤 {card.extractedData.name}
-                        </Text>
-                      )}
-                      {card.extractedData.title && (
-                        <Text style={styles.titleText}>
-                          💼 {card.extractedData.title}
-                        </Text>
-                      )}
-                      {card.extractedData.company && (
-                        <Text style={styles.companyText}>
-                          🏢 {card.extractedData.company}
-                        </Text>
-                      )}
-                      {card.emails && card.emails.length > 0 && (
-                        <Text style={styles.contactText}>
-                          📧 {card.emails[0]}
-                        </Text>
-                      )}
-                      {card.phones && card.phones.length > 0 && (
-                        <Text style={styles.contactText}>
-                          📞 {card.phones[0]}
-                        </Text>
-                      )}
-                      {card.urls && card.urls.length > 0 && (
-                        <Text style={styles.contactText}>
-                          🌐 {card.urls[0]}
-                        </Text>
-                      )}
-                    </View>
-                  ) : (
-                    <Text style={styles.cardText} numberOfLines={4}>
-                      {card.text}
-                    </Text>
-                  )}
+                        </TouchableOpacity>
+                      </View>
 
-                  {/* Action Buttons */}
-                  <View style={styles.actionButtons}>
-                    {card.text && (
-                      <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() =>
-                          Alert.alert("Raw Text", card.text, [
-                            { text: "Close", style: "cancel" },
-                          ])
-                        }
-                      >
-                        <Text style={styles.actionButtonText}>📄 Raw Text</Text>
-                      </TouchableOpacity>
-                    )}
-
-                    {(card.emails?.length > 0 || card.phones?.length > 0) && (
-                      <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => {
-                          const contactInfo = [
-                            ...(card.emails || []).map(
-                              (email) => `📧 ${email}`
-                            ),
-                            ...(card.phones || []).map(
-                              (phone) => `📱 ${phone}`
-                            ),
-                            ...(card.urls || []).map((url) => `🌐 ${url}`),
-                            ...(card.addresses || []).map(
-                              (address) => `📍 ${address}`
-                            ),
-                          ].join("\n");
-                          Alert.alert("All Contact Info", contactInfo, [
-                            { text: "Close", style: "cancel" },
-                          ]);
-                        }}
-                      >
-                        <Text style={styles.actionButtonText}>
-                          📋 All Contacts
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-
-                    {/* Delete Button */}
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.deleteButton]}
-                      onPress={() => confirmDeleteCard(card)}
-                    >
-                      <Text
-                        style={[
-                          styles.actionButtonText,
-                          styles.deleteButtonText,
-                        ]}
-                      >
-                        🗑️ Delete
+                      <Text style={styles.cardDate}>
+                        📅 {new Date(card.date).toLocaleDateString()}
                       </Text>
-                    </TouchableOpacity>
+                    </View>
                   </View>
-
-                  <Text style={styles.cardDate}>
-                    📅 {new Date(card.date).toLocaleDateString()}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      )}
-
-      {loading && (
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>{ocrStatus || "Processing..."}</Text>
-          {ocrProgress > 0 && (
-            <View style={styles.progressContainer}>
-              <View style={styles.progressBar}>
-                <View
-                  style={[styles.progressFill, { width: `${ocrProgress}%` }]}
-                />
-              </View>
-              <Text style={styles.progressText}>{ocrProgress}%</Text>
+                ))}
+              </ScrollView>
             </View>
           )}
-        </View>
+
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>
+                {ocrStatus || "Processing..."}
+              </Text>
+              {ocrProgress > 0 && (
+                <View style={styles.progressContainer}>
+                  <View style={styles.progressBar}>
+                    <View
+                      style={[
+                        styles.progressFill,
+                        { width: `${ocrProgress}%` },
+                      ]}
+                    />
+                  </View>
+                  <Text style={styles.progressText}>{ocrProgress}%</Text>
+                </View>
+              )}
+            </View>
+          )}
+        </>
+      ) : (
+        <HotelSearchScreen />
       )}
     </View>
   );
@@ -1302,6 +1360,40 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+
+  // Tab Navigation Styles
+  tabContainer: {
+    flexDirection: "row",
+    marginBottom: 20,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 8,
+    padding: 4,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    alignItems: "center",
+  },
+  activeTab: {
+    backgroundColor: "#007AFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#666",
+  },
+  activeTabText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+
   header: {
     marginBottom: 30,
   },
